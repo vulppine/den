@@ -1,0 +1,8 @@
+github.com/mattn/go-sqlite3 v1.14.6 h1:dNPt6NO46WmLVt2DLNpwczCmdV5boIZ6g/tlDrlRUbg=
+github.com/mattn/go-sqlite3 v1.14.6/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
+github.com/vulppine/foxmarks v0.1.0 h1:+/+tILkf5mom890h1HOsc9S0YTWaBiV+lmb/oO8Zzq0=
+github.com/vulppine/foxmarks v0.1.0/go.mod h1:V2CKMa9KaFc02CAjT0Lm/qv/G5fkIZ5xYhfKl9v9IUE=
+github.com/vulppine/foxmarks v0.1.1 h1:5/g8ZMvqkzsmQk9aTwBQuhZSk8qRUe0PVCh6yuFjVfw=
+github.com/vulppine/foxmarks v0.1.1/go.mod h1:V2CKMa9KaFc02CAjT0Lm/qv/G5fkIZ5xYhfKl9v9IUE=
+github.com/vulppine/foxmarks v0.1.2 h1:TzJUwAPvSiaW9Fkz1xdnEo3RX1T3n0sErJ4m9yh26Co=
+github.com/vulppine/foxmarks v0.1.2/go.mod h1:V2CKMa9KaFc02CAjT0Lm/qv/G5fkIZ5xYhfKl9v9IUE=
