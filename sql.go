@@ -77,6 +77,8 @@ func createBlog(d string, u string) (*blog, error) {
 	_, err = b.db.Exec("CREATE TABLE posts (id INTEGER NOT NULL PRIMARY KEY, title TEXT, desc TEXT, date_added DATE, src BLOB)")
 	_, err = b.db.Exec("CREATE TABLE config (option TEXT, value TEXT)")
 	_, err = b.db.Exec("INSERT INTO config (option, value) VALUES ('rootfolder', 'blog'), ('hosturl', ?)", u)
+	b.config.hostURL = u
+	b.config.rootFolder = "blog"
 
 	return b, err
 }

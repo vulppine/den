@@ -137,6 +137,7 @@ func main() {
 		if checkError(err) { panic(err) }
 
 		r, err = b.getPosts(p, 0)
+		err = writeIndexEntries(r, filepath.Join(b.config.rootFolder, "archive.html"), archive)
 		if checkError(err) { panic(err) }
 
 		for _, i := range r {
