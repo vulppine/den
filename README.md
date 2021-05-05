@@ -6,11 +6,12 @@ A (S)SSG written in Go
 
     den add post_src
     den update [id, post_src]
+    den rm id
 
 ## Dependencies
 
  * [go-sqlite3](https://github.com/mattn/go-sqlite3)
- * [foxmarks](https://github.com/vulppine/foxmarks)
+ * [goldmark](https://github.com/yuin/goldmark)
 
 ## Copyright
 

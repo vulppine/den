@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-
 	// "github.com/vulppine/foxmarks"
 )
 
@@ -65,6 +64,12 @@ func main() {
 		}
 
 		p := newPost(y)
+		i, err := filepath.Abs(flag.Arg(1))
+		if checkError(err) {
+			panic(err)
+		}
+		p.loc = filepath.Dir(i)
+
 		p, err = b.addPost(p.render())
 		if checkError(err) {
 			panic(err)
@@ -73,6 +78,7 @@ func main() {
 		err = os.MkdirAll(d, 0755)
 		err = p.writeHTML(filepath.Join(d, "index.html"))
 		err = p.writeSrc(filepath.Join(d, "post.md"))
+		err = p.copyImages(d)
 		if checkError(err) {
 			panic(err)
 		}
@@ -80,15 +86,23 @@ func main() {
 		p = new(post)
 
 		r, err := b.getPosts(p, 10)
-		if checkError(err) { panic(err) }
+		if checkError(err) {
+			panic(err)
+		}
 		err = writeIndexEntries(r, filepath.Join(b.config.rootFolder, "index.html"), index)
-		if checkError(err) { panic(err) }
+		if checkError(err) {
+			panic(err)
+		}
 		err = writeIndexEntries(r, filepath.Join(b.config.rootFolder, "feed.rss"), rss)
-		if checkError(err) { panic(err) }
+		if checkError(err) {
+			panic(err)
+		}
 
 		r, err = b.getPosts(p, 0)
 		err = writeIndexEntries(r, filepath.Join(b.config.rootFolder, "archive.html"), archive)
-		if checkError(err) { panic(err) }
+		if checkError(err) {
+			panic(err)
+		}
 	case "update":
 		if flag.Arg(1) != "" {
 			if flag.Arg(2) != "" {
@@ -98,6 +112,12 @@ func main() {
 				}
 
 				p := newPost(f)
+				r, err := filepath.Abs(flag.Arg(2))
+				if checkError(err) {
+					panic(err)
+				}
+				p.loc = filepath.Dir(r)
+
 				p = p.render()
 				p.id, err = strconv.Atoi(flag.Arg(1))
 				if checkError(err) {
@@ -112,6 +132,7 @@ func main() {
 				d := filepath.Join(b.config.rootFolder, "posts", strconv.Itoa(p.id))
 				err = p.writeHTML(filepath.Join(d, "index.html"))
 				err = p.writeSrc(filepath.Join(d, "post.md"))
+				err = p.copyImages(d)
 				if checkError(err) {
 					panic(err)
 				}
@@ -126,25 +147,50 @@ func main() {
 
 		if flag.Arg(1) != "" {
 			p.id, err = strconv.Atoi(flag.Arg(1))
-			if checkError(err) { panic(err) }
+			if checkError(err) {
+				panic(err)
+			}
 		}
 
 		r, err := b.getPosts(p, 10)
-		if checkError(err) { panic(err) }
+		if checkError(err) {
+			panic(err)
+		}
 		err = writeIndexEntries(r, filepath.Join(b.config.rootFolder, "index.html"), index)
-		if checkError(err) { panic(err) }
+		if checkError(err) {
+			panic(err)
+		}
 		err = writeIndexEntries(r, filepath.Join(b.config.rootFolder, "feed.rss"), rss)
-		if checkError(err) { panic(err) }
+		if checkError(err) {
+			panic(err)
+		}
 
 		r, err = b.getPosts(p, 0)
 		err = writeIndexEntries(r, filepath.Join(b.config.rootFolder, "archive.html"), archive)
-		if checkError(err) { panic(err) }
+		if checkError(err) {
+			panic(err)
+		}
 
 		for _, i := range r {
 			d := filepath.Join(b.config.rootFolder, "posts", strconv.Itoa(i.id))
 			i.render()
 			err = i.writeHTML(filepath.Join(d, "index.html"))
 			err = i.writeSrc(filepath.Join(d, "post.md"))
+		}
+	case "rm":
+		if flag.Arg(1) != "" {
+			p := new(post)
+			p.id, err = strconv.Atoi(flag.Arg(1))
+			if err != nil {
+				panic(err)
+			}
+
+			err = b.removePost(p)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			panic("missing argument to rm")
 		}
 	}
 }
