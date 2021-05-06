@@ -74,11 +74,19 @@ func main() {
 		if checkError(err) {
 			panic(err)
 		}
+		err = b.addImages(p)
+		if checkError(err) {
+			panic(err)
+		}
+		m, err := b.readImages(p)
+		if checkError(err) {
+			panic(err)
+		}
 		d := filepath.Join(b.config.rootFolder, "posts", strconv.Itoa(p.id))
 		err = os.MkdirAll(d, 0755)
 		err = p.writeHTML(filepath.Join(d, "index.html"))
 		err = p.writeSrc(filepath.Join(d, "post.md"))
-		err = p.copyImages(d)
+		err = writeImages(m, filepath.Join(d))
 		if checkError(err) {
 			panic(err)
 		}
@@ -128,11 +136,36 @@ func main() {
 				if checkError(err) {
 					panic(err)
 				}
+				m, err := b.readImages(p)
+				if checkError(err) {
+					panic(err)
+				}
 
 				d := filepath.Join(b.config.rootFolder, "posts", strconv.Itoa(p.id))
 				err = p.writeHTML(filepath.Join(d, "index.html"))
 				err = p.writeSrc(filepath.Join(d, "post.md"))
-				err = p.copyImages(d)
+				err = writeImages(m, filepath.Join(d))
+				if checkError(err) {
+					panic(err)
+				}
+
+				p = new(post)
+
+				i, err := b.getPosts(p, 10)
+				if checkError(err) {
+					panic(err)
+				}
+				err = writeIndexEntries(i, filepath.Join(b.config.rootFolder, "index.html"), index)
+				if checkError(err) {
+					panic(err)
+				}
+				err = writeIndexEntries(i, filepath.Join(b.config.rootFolder, "feed.rss"), rss)
+				if checkError(err) {
+					panic(err)
+				}
+
+				i, err = b.getPosts(p, 0)
+				err = writeIndexEntries(i, filepath.Join(b.config.rootFolder, "archive.html"), archive)
 				if checkError(err) {
 					panic(err)
 				}

@@ -2,8 +2,6 @@ package main
 
 import (
 	// "bytes"
-	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -124,6 +122,7 @@ func (p *post) writeSrc(o string) error {
 	return nil
 }
 
+/*
 // copyImages copies images from the imgs array to the target directory,
 // into a directory named 'img'.
 func (p *post) copyImages(d string) error {
@@ -160,6 +159,30 @@ func (p *post) copyImages(d string) error {
 
 	return nil
 }
+
+func (p *post) readImages() error {
+	if len(p.imgs) == 0 {
+		return nil
+	}
+
+	for _, v := range p.imgs {
+		if f, err := os.Open(filepath.Join(p.loc, v)); err != nil {
+			log.Printf("could not access %s, skipping (error: %s)\n", v, err)
+		} else {
+			if y, err := io.ReadAll(f); err != nil {
+				log.Printf("could not access %s, skipping (error: %s)\n", v, err)
+			} else {
+				err = b.addImage(p, &image{name: v, raw: y})
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+*/
 
 type postListing int
 

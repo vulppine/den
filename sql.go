@@ -3,7 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io"
+	"log"
 	"net/url"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -82,6 +85,7 @@ func createBlog(d string, u string) (*blog, error) {
 
 	_, err = b.db.Exec("CREATE TABLE posts (id INTEGER NOT NULL PRIMARY KEY, title TEXT, desc TEXT, date_added DATE, src BLOB)")
 	_, err = b.db.Exec("CREATE TABLE config (option TEXT, value TEXT)")
+	_, err = b.db.Exec("CREATE TABLE images (id INTEGER NOT NULL PRIMARY KEY, post_id INTEGER, image_name TEXT, image BLOB)")
 	_, err = b.db.Exec("INSERT INTO config (option, value) VALUES ('rootfolder', 'blog'), ('hosturl', ?)", u)
 	b.config.hostURL = u
 	b.config.rootFolder = "blog"
@@ -201,4 +205,85 @@ func (b *blog) updatePost(p *post) error {
 func (b *blog) removePost(p *post) error {
 	_, err := b.db.Exec("DELETE FROM posts WHERE id = ?", p.id)
 	return err
+}
+
+type image struct {
+	name string
+	raw  []byte
+}
+
+func (b *blog) addImages(p *post) error {
+	if len(p.imgs) == 0 {
+		return nil // non-op
+	}
+
+	for _, v := range p.imgs {
+		if f, err := os.Open(filepath.Join(p.loc, v)); err != nil {
+			log.Printf("could not access %s, skipping (error: %s)\n", v, err)
+		} else {
+			if y, err := io.ReadAll(f); err != nil {
+				log.Printf("could not access %s, skipping (error: %s)\n", v, err)
+			} else {
+				_, err := b.db.Exec(
+					"INSERT INTO images (post_id, image_name, image) VALUES (?, ?, ?)",
+					p.id, v, y,
+				)
+
+				if checkError(err) {
+					return err // implies something went wrong with the database
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (b *blog) readImages(p *post) ([]*image, error) {
+	var i []*image
+
+	r, err := b.db.Query("SELECT image_name, image FROM images WHERE post_id = ?", p.id)
+	if checkError(err) {
+		return i, err
+	}
+
+	for r.Next() {
+		e := new(image)
+
+		err := r.Scan(&e.name, &e.raw)
+		log.Println(e)
+		if checkError(err) {
+			return i, err
+		}
+		i = append(i, e)
+
+	}
+
+	return i, nil
+}
+
+func writeImages(i []*image, d string) error {
+	log.Println(i)
+	if len(i) == 0 {
+		return nil // non-op
+	}
+
+	err := os.Mkdir(filepath.Join(d, "img"), 0755)
+	if checkError(err) {
+		return err
+	}
+
+	for _, v := range i {
+		f, err := os.Create(filepath.Join(d, "img", v.name))
+		if checkError(err) {
+			return err
+		}
+
+		_, err = f.Write(v.raw)
+		if checkError(err) {
+			return err
+		}
+	}
+
+	return nil
 }
